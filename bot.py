@@ -1,73 +1,56 @@
-import asyncio
-import logging
 import os
-from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command
-from aiogram.enums import ParseMode
-from dotenv import load_dotenv
+import sys
 
-load_dotenv()
+# ЯВНАЯ ПРОВЕРКА ТОКЕНА
+TOKEN = os.getenv("8468223830:AAG2pFIMyAd7lqW8VtNw6OMqRL9AgyLTLkY")
 
-BOT_TOKEN = os.getenv("8468223830:AAG2pFIMyAd7lqW8VtNw6OMqRL9AgyLTLkY")
+print("=" * 50)
+print("DEBUG INFO:")
+print(f"BOT_TOKEN from env: {TOKEN}")
+print(f"Type: {type(TOKEN)}")
+print("=" * 50)
 
-bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
+if not TOKEN:
+    print("❌ CRITICAL ERROR: BOT_TOKEN is None or empty!")
+    print("👉 You MUST add BOT_TOKEN in Render Variables")
+    print("👉 Steps:")
+    print("   1. Go to Render Dashboard")
+    print("   2. Select your project")
+    print("   3. Click 'Environment'")
+    print("   4. Add Variable: Key=BOT_TOKEN, Value=your_token")
+    sys.exit(1)
+
+if TOKEN == "8468223830:AAHTcQTYvnROnkO_vApWArKiKLDkfecJAVk":
+    print("⚠️ WARNING: Using hardcoded token. Add to Render Variables!")
+else:
+    print(f"✅ Token length: {len(TOKEN)}")
+
+# Только после проверки импортируем aiogram
+try:
+    from aiogram import Bot, Dispatcher, types
+    from aiogram.filters import Command
+    from aiogram.enums import ParseMode
+    print("✅ Aiogram imported")
+except ImportError:
+    print("❌ Aiogram not installed. Check requirements.txt")
+    sys.exit(1)
+
+# Создаём бота
+bot = Bot(token=TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher()
 
 @dp.message(Command("start"))
-async def cmd_start(message: types.Message):
-    await message.answer(
-        "🚀 **Добро пожаловать!**\n\n"
-        "📋 **Доступные команды:**\n"
-        "/start - Главное меню\n"
-        "/help - Помощь и инструкции\n"
-        "/order - 📝 Создать заказ\n"
-        "/status - 📊 Статус заказа\n"
-        "/tariff - 💰 Тарифы и цены\n"
-        "/support - 👨‍💼 Связаться с менеджером\n"
-        "/balance - 💳 Баланс и оплата\n"
-        "/history - 📋 История заказов\n"
-        "/promo - 🎁 Акции и промокоды\n"
-        "/rules - 📜 Правила использования\n"
-        "/contact - 📞 Контакты компании\n"
-        "/report - 🚨 Пожаловаться на работу\n"
-        "/faq - ❓ Частые вопросы\n\n"
-        "Напишите /support для связи с поддержкой!"
-    )
+async def start(msg: types.Message):
+    await msg.answer("🚀 Бот работает! Напишите /support")
 
 @dp.message(Command("support"))
-async def cmd_support(message: types.Message):
-    await message.answer(
-        "👨‍💼 **Служба поддержки**\n\n"
-        "Опишите ваш вопрос или проблему прямо здесь.\n"
-        "Оператор ответит в течение 15 минут.\n\n"
-        "⏱️ Время ответа: 9:00-21:00\n"
-        "📬 Просто напишите сообщение ниже ⬇️"
-    )
-
-@dp.message(Command("help"))
-async def cmd_help(message: types.Message):
-    await message.answer(
-        "📚 **Помощь по использованию:**\n\n"
-        "1. /order - создать новый заказ\n"
-        "2. /status - проверить статус заказа\n"
-        "3. /balance - пополнить баланс\n"
-        "4. /support - связаться с менеджером\n"
-        "5. /history - история заказов\n\n"
-        "Техподдержка: @ваш_логин"
-    )
-
-@dp.message()
-async def handle_all_messages(message: types.Message):
-    if message.text and not message.text.startswith('/'):
-        await message.answer(
-            f"✅ Сообщение получено!\n"
-            f"Оператор скоро ответит.\n\n"
-            f"Вы написали: {message.text[:100]}"
-        )
+async def support(msg: types.Message):
+    await msg.answer("👨‍💼 Поддержка активна. Опишите проблему.")
 
 async def main():
-    logging.basicConfig(level=logging.INFO)
+    print("🤖 Starting bot polling...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
+    import asyncio
     asyncio.run(main())
